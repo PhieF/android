@@ -29,6 +29,7 @@ import android.os.PowerManager;
 import android.support.annotation.NonNull;
 import android.support.media.ExifInterface;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.evernote.android.job.Job;
 import com.evernote.android.job.util.support.PersistableBundleCompat;
@@ -53,7 +54,9 @@ import java.io.File;
 import java.io.IOException;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
@@ -67,7 +70,15 @@ public class FilesSyncJob extends Job {
     public static final String TAG = "FilesSyncJob";
 
     public static final String SKIP_CUSTOM = "skipCustom";
+
     public static final String OVERRIDE_POWER_SAVING = "overridePowerSaving";
+
+    private static List<String> sAvoidExtension;
+    static{
+        sAvoidExtension = new ArrayList<>();
+        sAvoidExtension.add("thumbnail");
+    }
+
 
     @NonNull
     @Override
@@ -105,7 +116,11 @@ public class FilesSyncJob extends Job {
                 for (String path : filesystemDataProvider.getFilesForUpload(syncedFolder.getLocalPath(),
                         Long.toString(syncedFolder.getId()))) {
                     File file = new File(path);
-
+                    String extension = FileStorageUtils.getExtensionFromName(path);
+                    if(sAvoidExtension.contains(extension)) {
+                        Log.d  (TAG,"avoiding "+path);
+                        continue;
+                    }
                     Long lastModificationTime = file.lastModified();
                     final Locale currentLocale = context.getResources().getConfiguration().locale;
 

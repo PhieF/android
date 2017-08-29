@@ -507,13 +507,18 @@ public class FileStorageUtils {
      * @return the mime type based on the file name
      */
     public static String getMimeTypeFromName(String path) {
+        String extension = getExtensionFromName(path);
+        String result = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension.toLowerCase());
+        return (result != null) ? result : "";
+    }
+
+    public static String getExtensionFromName(String path) {
         String extension = "";
         int pos = path.lastIndexOf('.');
         if (pos >= 0) {
             extension = path.substring(pos + 1);
         }
-        String result = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension.toLowerCase());
-        return (result != null) ? result : "";
+        return extension;
     }
 
     /**
